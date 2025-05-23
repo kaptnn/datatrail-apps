@@ -1,0 +1,75 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-kaptnn}"
+      MYSQL_USER: "${MYSQL_USER:-kaptnn}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.20"
+          memory: 1024M
+
+  api:
+    build:
+      context: ./kaptnn-calculator
+      dockerfile: Dockerfile
+    image: kaptnn-calculator:latest
+    restart: unless-stopped
+    env_file:
+      - ./kaptnn-calculator/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - web
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: 1024M
+
+  web:
+    build:
+      context: ./kaptnn-document-management-website
+      dockerfile: Dockerfile
+    image: kaptnn-document-management-website:latest
+    restart: unless-stopped
+    env_file:
+      - ./kaptnn-document-management-website/.env
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    networks:
+      - web
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: 1024M
+
+volumes:
+  db_data:
+
+networks:
+  web:
+    driver: bridge
+  backend:
+    driver: bridge
