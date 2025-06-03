@@ -11,3 +11,7 @@
 # Docker
 /db_data
 /nginx/certs
+
+.env
+
+backup.sql
