@@ -1,8 +1,8 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/kaptnn/kaptnn-financial-calculator-api.git
-	branch = development
+	branch = main
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/kaptnn/kaptnn-web-apps.git
-	branch = staging
+	branch = main
